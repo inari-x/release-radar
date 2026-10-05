@@ -17,3 +17,12 @@ def test_ignores_comments_blank_lines_and_options():
 def test_handles_extras_and_markers():
     text = 'fastapi[standard]==0.115.0 ; python_version >= "3.10"\n'
     assert parse_requirements(text)[0].name == "fastapi"
+
+def test_normalizes_package_names():
+    text = "Django_REST.framework==3.15\n"
+    assert parse_requirements(text)[0].name == "django-rest-framework"
+
+
+def test_skips_invalid_lines_instead_of_crashing():
+    text = "==1.0\nflask==3.0.0\n"
+    assert [d.name for d in parse_requirements(text)] == ["flask"]

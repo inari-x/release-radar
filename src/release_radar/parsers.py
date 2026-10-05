@@ -1,6 +1,12 @@
 from dataclasses import dataclass
 
-from packaging.requirements import Requirement
+import logging
+from dataclasses import dataclass
+
+from packaging.requirements import InvalidRequirement, Requirement
+from packaging.utils import canonicalize_name
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -11,25 +17,23 @@ class Dependency:
 
 
 def parse_requirements(text: str) -> list[Dependency]:
+    """Parse requirements.txt content into dependencies, skipping comments, options and invalid lines."""
     deps = []
     for line in text.splitlines():
-        # 1. remove everything after "#"
-        line = line.split("#")[0]
-        
-        # 2. strip whitespace from both ends
-        line = line.strip()
-        
-        # 3. if the line is empty or starts with "-", skip it (continue)
+        line = line.split("#")[0].strip()
         if not line or line.startswith("-"):
             continue
-            
-        # 4. req = Requirement(line)
-        req = Requirement(line)
 
-        # 5. append Dependency(name=..., specifier=..., ecosystem="pypi")
+        try:
+            req = Requirement(line)
+        except InvalidRequirement:
+            logger.warning("Invalid requirement: %s", line)
+            continue
+
         deps.append(Dependency(
-            name=req.name,
+            name=canonicalize_name(req.name),
             specifier=str(req.specifier),
-            ecosystem="pypi"
+            ecosystem="pypi",
         ))
     return deps
+
