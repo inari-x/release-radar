@@ -10,10 +10,6 @@ def test_raises_on_server_error():
     with pytest.raises(httpx.HTTPStatusError):
         fetch_latest_version("requests", make_client(handler))
         
-    
-    with pytest.raises(httpx.HTTPStatusError):
-        fetch_latest_version("requests", httpx.Client(transport=httpx.MockTransport(handler)))
-
 
 def make_client(handler):
     return httpx.Client(transport=httpx.MockTransport(handler))
