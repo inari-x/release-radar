@@ -31,10 +31,8 @@ def fetch_releases(repo: str, client: httpx.Client) -> list[Release] | None:
     response = client.get(GITHUB_RELEASES_URL.format(repo=repo))
     if response.status_code == 404:
         return None
-    if response.status_code == 404:
-       return None
     response.raise_for_status()
     return [
-        Release(tag=release["tag_name"], notes=release.get("body", "") or "") 
+        Release(tag=release["tag_name"], notes=release.get("body", "") or "")
         for release in response.json()
     ]
