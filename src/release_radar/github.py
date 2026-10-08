@@ -1,6 +1,4 @@
 from dataclasses import dataclass
-from urllib import response
-
 import httpx
 from urllib.parse import urlparse
 
@@ -37,6 +35,6 @@ def fetch_releases(repo: str, client: httpx.Client) -> list[Release] | None:
        return None
     response.raise_for_status()
     return [
-        Release(tag=release["tag_name"], notes=release.get("body", "") or "")
+        Release(tag=release["tag_name"], notes=release.get("body", "") or "") 
         for release in response.json()
     ]
