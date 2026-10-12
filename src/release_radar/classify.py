@@ -47,3 +47,6 @@ def classify_release(notes: str, client, model: str) -> ReleaseClassification:
     )
     return response.output_parsed
     
+def count_category(classifications: list[ReleaseClassification], category: Category) -> int:
+    """Count changes with the given category across several releases."""
+    return sum(1 for release in classifications for change in release.changes if change.category == category)

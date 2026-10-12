@@ -6,6 +6,7 @@ from release_radar.classify import (
     ClassifiedChange,
     ReleaseClassification,
     classify_release,
+    count_category
 )
 
 from release_radar.classify import ClassifiedChange
@@ -72,3 +73,19 @@ def test_long_notes_are_truncated():
     client = FakeClient(ReleaseClassification(changes=[]))
     classify_release("x" * 50_000, client, "test-model")
     assert len(client.responses.calls[0]["input"][1]["content"]) <= MAX_NOTES_CHARS
+
+
+def test_counts_category_across_releases():
+    first = ReleaseClassification(changes=[
+        ClassifiedChange(summary="a", category="breaking", reason="r"),
+        ClassifiedChange(summary="b", category="fix", reason="r"),
+    ])
+    second = ReleaseClassification(changes=[
+        ClassifiedChange(summary="c", category="breaking", reason="r"),
+    ])
+    assert count_category([first, second], "breaking") == 2
+    assert count_category([first, second], "fix") == 1
+
+
+def test_count_is_zero_without_releases():
+    assert count_category([], "breaking") == 0
