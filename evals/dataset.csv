@@ -9,3 +9,21 @@ pallets/flask,3.0.1,false,bug fix for JSON providers
 pallets/flask,3.0.0,true,removes previously deprecated code
 pallets/flask,2.3.3,false,unsure - notes empty
 pallets/flask,2.2.5,false,security fix
+encode/httpx,0.28.1,false,ssl bug fix
+encode/httpx,0.28.0,true,removes deprecated proxies and app arguments
+encode/httpx,0.27.2,false,bug fix
+encode/httpx,0.27.0,false,deprecation only - app still works
+encode/httpx,0.26.0,false,deprecation only - proxies still works
+encode/httpx,0.25.0,true,drops Python 3.7
+psf/requests,v2.34.0,true,changed behavior - no_proxy matching and leading slashes
+psf/requests,v2.33.1,false,bug fixes
+psf/requests,v2.33.0,true,drops Python 3.9
+psf/requests,v2.32.5,true,drops Python 3.8 - reverts a feature
+psf/requests,v2.32.4,true,unsure - drops PyPy 3.9
+psf/requests,v2.32.3,false,bug fixes
+psf/requests,v2.32.2,false,deprecation only - old name still works
+psf/requests,v2.32.1,false,packaging fix
+pydantic/pydantic,v2.13.5,false,bug fixes
+pydantic/pydantic,v2.13.3,false,bug fix
+pydantic/pydantic,v2.13.0,false,notes say non-breaking - new warnings only
+pallets/flask,2.3.0,true,removes previously deprecated code

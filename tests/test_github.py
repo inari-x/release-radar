@@ -1,7 +1,7 @@
 import httpx
 import pytest
 
-from release_radar.github import Release, fetch_releases, find_github_repo
+from release_radar.github import Release, fetch_releases, find_github_repo, fetch_release
 
 
 def test_finds_repo_from_source_url():
@@ -66,3 +66,19 @@ def test_raises_on_server_error():
 
     with pytest.raises(httpx.HTTPStatusError):
         fetch_releases("pallets/flask", make_client(handler))
+
+def test_fetch_release_by_tag():
+    def handler(request):
+        assert request.url.path == "/repos/pallets/flask/releases/tags/3.0.0"
+        return httpx.Response(200, json={"tag_name": "3.0.0", "body": "- Removed old code"})
+
+    assert fetch_release("pallets/flask", "3.0.0", make_client(handler)) == Release(
+        tag="3.0.0", notes="- Removed old code"
+    )
+
+
+def test_fetch_release_unknown_tag_returns_none():
+    def handler(request):
+        return httpx.Response(404)
+
+    assert fetch_release("pallets/flask", "99.0.0", make_client(handler)) is None
