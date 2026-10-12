@@ -20,7 +20,7 @@ SYSTEM_PROMPT = """You classify entries from a software package's release notes.
 For each distinct change in the release notes, return one item with:
 - summary: the change in one short sentence
 - category: exactly one of
-  - breaking: existing code using this package could stop working (removed or renamed APIs, changed defaults, dropped Python versions)
+  - breaking: existing code using this package could stop working or behave differently (removed or renamed APIs, changed defaults or behavior, dropped Python versions) 
   - deprecation: still works today, but is announced for removal in a future version
   - feature: a new capability; nothing existing changes
   - fix: a bug fix

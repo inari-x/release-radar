@@ -36,3 +36,15 @@ def fetch_releases(repo: str, client: httpx.Client) -> list[Release] | None:
         Release(tag=release["tag_name"], notes=release.get("body", "") or "")
         for release in response.json()
     ]
+
+GITHUB_RELEASE_BY_TAG_URL = "https://api.github.com/repos/{repo}/releases/tags/{tag}"
+
+
+def fetch_release(repo: str, tag: str, client: httpx.Client) -> Release | None:
+    """Return one release by its tag, or None if it doesn't exist."""
+    response = client.get(GITHUB_RELEASE_BY_TAG_URL.format(repo=repo, tag=tag))
+    if response.status_code == 404:
+        return None
+    response.raise_for_status()
+    release = response.json()
+    return Release(tag=release["tag_name"], notes=release.get("body", "") or "")
