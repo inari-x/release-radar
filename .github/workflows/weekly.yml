@@ -1,0 +1,25 @@
+name: Weekly report
+
+on:
+  schedule:
+    - cron: "17 15 * * 1"   # Mondays 15:17 UTC
+  workflow_dispatch:         # adds a "Run workflow" button
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync
+      - name: Check dependencies and publish issue
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: gpt-6-luna
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: # TODO (you)
