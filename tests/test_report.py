@@ -1,10 +1,9 @@
 from datetime import date
 
-from release_radar.classify import ClassifiedChange
-from release_radar.report import DependencyResult, format_cli_line, format_issue, issue_title
+from release_radar.report import Change, DependencyResult, format_cli_line, format_issue, group_changes, issue_title
 
 def breaking_change(summary):
-    return ClassifiedChange(summary=summary, category="breaking", reason="r")
+    return Change(version="1.0.0", summary=summary)
 
 
 def test_skipped_line():
@@ -60,3 +59,16 @@ def test_issue_says_when_nothing_needs_attention():
 def test_issue_lists_packages_that_were_not_checked():
     skipped = DependencyResult(name="fastapi", status="skipped")
     assert "- fastapi: skipped (not pinned)" in format_issue([skipped])
+
+def test_group_changes_adds_version():
+    assert group_changes([Change("3.0.0", "Removed x")]) == ["Removed x (3.0.0)"]
+
+
+def test_group_changes_merges_same_summary():
+    changes = [Change("3.0.0", "Removed x"), Change("2.3.0", "Removed x")]
+    assert group_changes(changes) == ["Removed x (3.0.0, 2.3.0)"]
+
+
+def test_group_changes_keeps_order():
+    changes = [Change("3.0.0", "B"), Change("2.3.0", "A")]
+    assert group_changes(changes) == ["B (3.0.0)", "A (2.3.0)"]

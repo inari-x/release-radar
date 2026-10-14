@@ -2,9 +2,13 @@ from dataclasses import dataclass, field
 from datetime import date, timedelta
 from typing import Literal
 
-from release_radar.classify import ClassifiedChange
-
 Status = Literal["checked", "skipped", "not_found", "no_repo", "repo_not_found"]
+
+
+@dataclass(frozen=True)
+class Change:
+    version: str
+    summary: str
 
 
 @dataclass(frozen=True)
@@ -14,8 +18,8 @@ class DependencyResult:
     current: str | None = None
     latest: str | None = None
     new_releases: int = 0
-    breaking: list[ClassifiedChange] = field(default_factory=list)
-    deprecations: list[ClassifiedChange] = field(default_factory=list)
+    breaking: list[Change] = field(default_factory=list)
+    deprecations: list[Change] = field(default_factory=list)
 
 
 def format_cli_line(result: DependencyResult) -> str:
@@ -31,6 +35,15 @@ def format_cli_line(result: DependencyResult) -> str:
         "no_repo": f"{versions}   no GitHub repo found",
         "repo_not_found": f"{versions}   GitHub repo not found",
     }[result.status]
+
+def group_changes(changes: list[Change]) -> list[str]:
+    """One line per distinct summary, listing every version it appeared in."""
+    versions: dict[str, list[str]] = {}
+    for change in changes:
+        if change.summary not in versions:
+            versions[change.summary] = []
+        versions[change.summary].append(change.version)
+    return [f"{summary} ({', '.join(tags)})" for summary, tags in versions.items()]
 
 def issue_title(today: date) -> str:
     """Title of the weekly issue, named after the Monday of today's week."""
