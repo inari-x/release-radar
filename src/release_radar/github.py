@@ -2,6 +2,30 @@ from dataclasses import dataclass
 import httpx
 from urllib.parse import urlparse
 
+GITHUB_ISSUES_URL = "https://api.github.com/repos/{repo}/issues"
+
+
+def find_issue(repo: str, title: str, client: httpx.Client) -> int | None:
+    """Return the number of the open issue with exactly this title, or None."""
+    response = client.get(GITHUB_ISSUES_URL.format(repo=repo), params={"state": "open", "per_page": 100})
+    response.raise_for_status()
+    # TODO (you): loop over response.json(); return the issue's "number" if its "title" == title
+    for issue in response.json():
+        if issue["title"] == title:
+            return issue["number"]
+    return None
+
+
+def publish_issue(repo: str, title: str, body: str, client: httpx.Client) -> str:
+    """Create this week's issue, or update it if it already exists. Returns "created" or "updated"."""
+    url = GITHUB_ISSUES_URL.format(repo=repo)
+    number = find_issue(repo, title, client)
+    if number is None:
+        client.post(url, json={"title": title, "body": body}).raise_for_status()
+        return "created"
+    client.patch(f"{url}/{number}", json={"body": body}).raise_for_status()
+    return "updated"
+
 
 def find_github_repo(project_urls: dict[str, str] | None) -> str | None:
     """Return 'owner/repo' from the first GitHub link in a package's project URLs, or None."""
