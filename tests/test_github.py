@@ -1,7 +1,47 @@
 import httpx
+import json
 import pytest
 
-from release_radar.github import Release, fetch_releases, find_github_repo, fetch_release, make_github_client
+from release_radar.github import Release, fetch_releases, find_github_repo, fetch_release, make_github_client, find_issue, publish_issue
+
+TITLE = "Release Radar: week of 2026-10-12"
+
+
+def issues_client(existing, calls):
+    """Fake GitHub: GET returns `existing`, POST/PATCH succeed. Every request is recorded in `calls`."""
+    def handler(request):
+        calls.append(request)
+        if request.method == "GET":
+            return httpx.Response(200, json=existing)
+        if request.method == "POST":
+            return httpx.Response(201, json={"number": 99})
+        return httpx.Response(200, json={"number": 7})
+    return httpx.Client(transport=httpx.MockTransport(handler))
+
+
+def test_find_issue_returns_number_for_exact_title():
+    existing = [{"number": 3, "title": "Something else"}, {"number": 7, "title": TITLE}]
+    assert find_issue("me/repo", TITLE, issues_client(existing, [])) == 7
+
+
+def test_find_issue_ignores_last_weeks_issue():
+    existing = [{"number": 5, "title": "Release Radar: week of 2026-10-05"}]
+    assert find_issue("me/repo", TITLE, issues_client(existing, [])) is None
+
+
+def test_publish_creates_issue_when_none_exists():
+    calls = []
+    assert publish_issue("me/repo", TITLE, "body", issues_client([], calls)) == "created"
+    assert calls[-1].method == "POST"
+
+
+def test_publish_updates_existing_issue():
+    calls = []
+    existing = [{"number": 7, "title": TITLE}]
+    assert publish_issue("me/repo", TITLE, "new body", issues_client(existing, calls)) == "updated"
+    assert calls[-1].method == "PATCH"
+    assert calls[-1].url.path.endswith("/issues/7")
+    assert json.loads(calls[-1].content) == {"body": "new body"}
 
 def test_github_client_sends_token():
     with make_github_client("abc") as client:
