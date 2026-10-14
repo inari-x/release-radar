@@ -1,16 +1,17 @@
 import os
 import sys
+import token
 
 import httpx
 from dotenv import load_dotenv
 from openai import OpenAI
 
 from release_radar.classify import classify_release, count_category
-from release_radar.github import fetch_releases, find_github_repo
+from release_radar.github import fetch_releases, find_github_repo, make_github_client
 from release_radar.parsers import Dependency, parse_requirements
 from release_radar.pypi import fetch_package
 from release_radar.versions import pinned_version, releases_newer_than
-from release_radar.report import DependencyResult
+from release_radar.report import DependencyResult, format_cli_line
 
 
 def check_dependency(dep: Dependency, http: httpx.Client, llm: OpenAI, model: str) -> DependencyResult:
@@ -58,8 +59,13 @@ def main() -> None:
     with open(path, encoding="utf-8") as f:
         deps = parse_requirements(f.read())
 
-    with httpx.Client(timeout=10, follow_redirects=True) as http:
-        results = [check_dependency(dep, http, llm, model) for dep in deps]
+    token = os.environ.get("GITHUB_TOKEN")
+    with httpx.Client(timeout=10, follow_redirects=True) as pypi, make_github_client(token) as github:
+        results = [check_dependency(dep, pypi, github, llm, model) for dep in deps]
+
+    for result in results:
+        print(f"{result.name:35} {format_cli_line(result)}")
+        
 
     for result in results:
         print(f"{result.name:35} {format_cli_line(result)}")

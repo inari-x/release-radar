@@ -1,7 +1,16 @@
 import httpx
 import pytest
 
-from release_radar.github import Release, fetch_releases, find_github_repo, fetch_release
+from release_radar.github import Release, fetch_releases, find_github_repo, fetch_release, make_github_client
+
+def test_github_client_sends_token():
+    with make_github_client("abc") as client:
+        assert client.headers["Authorization"] == "Bearer abc"
+
+
+def test_github_client_without_token_sends_no_auth():
+    with make_github_client(None) as client:
+        assert "Authorization" not in client.headers
 
 
 def test_finds_repo_from_source_url():
