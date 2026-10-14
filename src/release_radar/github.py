@@ -48,3 +48,10 @@ def fetch_release(repo: str, tag: str, client: httpx.Client) -> Release | None:
     response.raise_for_status()
     release = response.json()
     return Release(tag=release["tag_name"], notes=release.get("body", "") or "")
+
+def make_github_client(token: str | None) -> httpx.Client:
+    """HTTP client for api.github.com. Only this client ever carries the token."""
+    headers = {"Accept": "application/vnd.github+json"}
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+    return httpx.Client(timeout=10, follow_redirects=True, headers=headers)
