@@ -22,4 +22,4 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENAI_MODEL: gpt-6-luna
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: # TODO (you)
+        run: uv run python -m release_radar example-requirements.txt --publish ${{ github.repository }}
