@@ -72,15 +72,18 @@ def main() -> None:
         sys.exit("Error: GITHUB_TOKEN is required when using --publish")
 
     model = os.environ["OPENAI_MODEL"]
-    llm = OpenAI()
+    llm = OpenAI(timeout=60, max_retries=1)
 
     with open(args.requirements, encoding="utf-8") as f:
         deps = parse_requirements(f.read())
 
     with httpx.Client(timeout=10, follow_redirects=True) as pypi, make_github_client(token) as github:
-        results = [check_dependency(dep, pypi, github, llm, model) for dep in deps]
-        for result in results:
-            print(f"{result.name:35} {format_cli_line(result)}")
+        results = []
+        for dep in deps:
+            print(f"{dep.name:35} ", end="", flush=True)
+            result = check_dependency(dep, pypi, github, llm, model)
+            print(format_cli_line(result), flush=True)
+            results.append(result)
         if args.publish:
             title = issue_title(date.today())
             outcome = publish_issue(args.publish, title, format_issue(results), github)
