@@ -2,7 +2,7 @@
 
 Weekly check of a project's pinned Python dependencies: finds new releases, reads their release notes, and uses an LLM to flag the changes that could break your code. One GitHub issue a week instead of a dozen ignored notifications.
 
-![Weekly report issue](docs/weekly-issue.png)
+![Weekly report issue](docs/weekly-report.png)
 
 ## Why
 
