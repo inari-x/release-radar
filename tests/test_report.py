@@ -48,8 +48,7 @@ def test_issue_lists_breaking_changes_under_package():
     )
     body = format_issue([flask])
     assert "### flask 2.2.0 → 3.1.3" in body
-    assert "- Removed escape" in body
-
+    assert "- Removed escape (1.0.0)" in body
 
 def test_issue_says_when_nothing_needs_attention():
     calm = DependencyResult(name="requests", status="checked", current="2.32.0", latest="2.32.1", new_releases=1)

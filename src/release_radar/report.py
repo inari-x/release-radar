@@ -65,17 +65,14 @@ def format_issue(results: list[DependencyResult]) -> str:
         lines.append(f"{r.new_releases} new releases")
         if r.breaking:
             lines.append("**Breaking**")
-            lines.extend(f"- {c.summary}" for c in r.breaking)
+            lines.extend(f"- {line}" for line in group_changes(r.breaking))
         if r.deprecations:
             lines.append("**Deprecations**")
-            lines.extend(f"- {c.summary}" for c in r.deprecations)
-
+            lines.extend(f"- {line}" for line in group_changes(r.deprecations))
     if calm:
         lines.append("## No action needed")
         lines.extend(f"- {r.name}: {format_cli_line(r)}" for r in calm)
 
-    # TODO (you): a "## Not checked" section, the same pattern as "No action needed",
-    # one line per result in not_checked
     if not_checked:
         lines.append("## Not checked")
         lines.extend(f"- {r.name}: {format_cli_line(r)}" for r in not_checked)  
