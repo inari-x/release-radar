@@ -46,7 +46,7 @@ uv run python -m release_radar requirements.txt --publish OWNER/REPO
 
 ## Does it work? (evaluation)
 
-A hand-labelled dataset of TODO (you) real releases from flask, httpx, requests and pydantic (`evals/dataset.csv`), checking one question: does this release contain a breaking change?
+A hand-labelled dataset of 28 real releases from flask, httpx, requests and pydantic (`evals/dataset.csv`, 9 with breaking changes), checking one question: does this release contain a breaking change?
 
 | Metric | Result |
 |---|---|
