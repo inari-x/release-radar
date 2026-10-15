@@ -11,7 +11,7 @@ from release_radar.classify import classify_release
 from release_radar.github import fetch_releases, find_github_repo, make_github_client, publish_issue
 from release_radar.parsers import parse_requirements
 from release_radar.pypi import fetch_package
-from release_radar.report import DependencyResult, format_cli_line, format_issue, issue_title
+from release_radar.report import Change, DependencyResult, format_cli_line, format_issue, issue_title
 from release_radar.versions import pinned_version, releases_newer_than
 
 
@@ -36,7 +36,7 @@ def check_dependency(dep, pypi, github, llm, model) -> DependencyResult:
 
     newer = releases_newer_than(releases, current)
     changes = [
-        change
+        (release.tag, change)
         for release in newer
         for change in classify_release(release.notes, llm, model).changes
     ]
@@ -46,8 +46,8 @@ def check_dependency(dep, pypi, github, llm, model) -> DependencyResult:
         current=current,
         latest=latest,
         new_releases=len(newer),
-        breaking=[c for c in changes if c.category == "breaking"],
-        deprecations=[c for c in changes if c.category == "deprecation"],
+        breaking=[Change(tag, c.summary) for tag, c in changes if c.category == "breaking"],
+        deprecations=[Change(tag, c.summary) for tag, c in changes if c.category == "deprecation"],
     )
 
 
