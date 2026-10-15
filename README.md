@@ -50,10 +50,12 @@ A hand-labelled dataset of TODO (you) real releases from flask, httpx, requests 
 
 | Metric | Result |
 |---|---|
-| Precision | TODO (you) |
-| Recall | TODO (you) |
+| Precision | 100% (8 caught, 0 false alarms) |
+| Recall | 89% (8 of 9 found) |
 
-TODO (you): 2–3 sentences. What did the eval find? Mention the prompt/label inconsistency it revealed, and the remaining miss (requests v2.34.0) and why you documented it instead of changing the label.
+Single run with `gpt-6-luna`, October 2026. Run it yourself with `uv run python evals/run_eval.py`.
+
+The first eval run found an inconsistency: my labels counted changed behavior and dropped Python versions as breaking, but the prompt's definition of "breaking" didn't. I fixed the prompt, not the labels. One miss remains: requests v2.34.0, where bug fixes change existing behavior (proxy matching, leading slashes in URLs) and the model classifies them as fixes. I kept that label, because changing labels to raise the score would make the eval meaningless, and documented it as a known limitation. With only 28 examples, these numbers are a sanity check, not a benchmark.
 
 ## Limitations
 
